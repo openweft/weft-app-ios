@@ -1,0 +1,52 @@
+# XcodeGen project for weft-app-ios.
+#
+#   brew install xcodegen
+#   xcodegen generate          # produces WeftApp.xcodeproj
+#   open WeftApp.xcodeproj
+#
+# Two targets:
+#   WeftApp           — the UIKit app (WKWebView shell), links WeftAppKit.
+#   WeftTunnel        — a NEPacketTunnelProvider extension for the optional
+#                       WireGuard transport. SSH (Citadel) needs no
+#                       extension and links straight into the app.
+name: WeftApp
+
+options:
+  bundleIdPrefix: io.openweft
+  deploymentTarget:
+    iOS: '17.0'
+
+packages:
+  # Local package providing WeftAppKit (core) + WeftAppKitSSH (SSH/Citadel).
+  WeftAppKit:
+    path: .
+
+targets:
+  WeftApp:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: WeftAppKit
+        product: WeftAppKit
+      - package: WeftAppKit
+        product: WeftAppKitSSH
+      - target: WeftTunnel
+    settings:
+      base:
+        INFOPLIST_FILE: App/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: io.openweft.weftapp
+        CODE_SIGN_ENTITLEMENTS: App/WeftApp.entitlements
+        TARGETED_DEVICE_FAMILY: '1,2'
+
+  WeftTunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Tunnel
+    settings:
+      base:
+        INFOPLIST_FILE: Tunnel/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: io.openweft.weftapp.tunnel
+        CODE_SIGN_ENTITLEMENTS: Tunnel/WeftTunnel.entitlements

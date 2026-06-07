@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: WeftAppKit build + test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build and unit-test the portable core (no Xcode project needed).
+      # XCTest is available on the macOS runner's full Xcode.
+      - name: Build WeftAppKit
+        run: swift build --target WeftAppKit
+
+      - name: Test WeftAppKit
+        run: swift test
